@@ -10,8 +10,25 @@ server.listen(8081);
 app.use(express.static(path.join(__dirname, 'www')));
 
 io.sockets.on('connection', function (socket) {
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
+  console.log('Get a connection...');
+  socket.on('DeviceConnect', OnDeviceConnected);
+  socket.on('ConsoleConnect', OnConsoleConnected);
 });
+
+function OnDeviceConnected(data){
+	this.on('disconnect', OnDeviceDisconnected);
+	console.log('OnDeviceConnected');
+}
+
+function OnDeviceDisconnected(){
+	console.log('OnDeviceDisconnected')
+}
+
+function OnConsoleConnected(data){
+	this.on('disconnect', OnConsoleDisconnected);
+	console.log('Console OnConsoleConnected');
+}
+
+function OnConsoleDisconnected(){
+	console.log('OnConsoleDisconnected');
+}

@@ -6,11 +6,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io.connect('http://10.230.227.41:8081');
-  socket.on('news', function (data) {
-    console.log('Receive data from server:'+data);
-    socket.emit('c2s', { my: 'data from client' });
-  });
-  console.log('test...');
+  socket.emit('ConsoleConnect', {});
 </script>
 
 </head>

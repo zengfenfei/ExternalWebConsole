@@ -14,7 +14,7 @@ Use this file as the first script for the html page where you want debug.
 	ExternalConsole.prototype.connect = function(host) {
 		this.host = host || this.host;
 		this.socket = io.connect(this.host);
-		this.socket.emit('DeviceConnect', {ua:navigator.userAgent, url:location.href});
+		this.socket.emit('DeviceConnect');
 		console.log('Connected to server '+this.host);
 	};
 

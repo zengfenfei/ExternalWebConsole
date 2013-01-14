@@ -5,13 +5,25 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io.connect('http://10.230.227.41:8081');
-  socket.emit('ConsoleConnect', {});
+  var socket = io.connect();
+  socket.emit('ConsoleConnect',{ua:navigator.userAgent});
+  socket.on('DeviceList', function(devices) {
+  	var select = document.getElementById('device-list');
+  	select.options.length = 0;	//clear all the options in the list
+  	for(var i=0; i<devices.length; i++){
+  		var option = document.createElement('option');
+  		option.text = devices[i].addr+' -> '+devices[i].url;
+  		option.title = devices[i].ua;
+  		select.add(option);
+  	}
+  });
 </script>
 
 </head>
 <body>
-	External Web Console
+	<h1>External Web Console</h1>
+	<label>Select devices:</label><select id = 'device-list'>
+	</select>
 </body>
 
 </html>

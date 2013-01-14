@@ -2,6 +2,17 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
 <title>The web console for your mobile web application.</title>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://10.230.227.41:8081');
+  socket.on('news', function (data) {
+    console.log('Receive data from server:'+data);
+    socket.emit('c2s', { my: 'data from client' });
+  });
+  console.log('test...');
+</script>
+
 </head>
 <body>
 	External Web Console

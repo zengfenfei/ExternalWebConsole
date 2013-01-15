@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
 <title>The web console for your mobile web application.</title>
 
+<script type="text/javascript" src='browserDetect.js'></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   var socket = io.connect();
@@ -16,8 +17,8 @@
   	select.options.length = 0;	//clear all the options in the list
   	for(var i=0; i<devices.length; i++){
   		var option = document.createElement('option');
-  		option.text = devices[i].addr+' -> '+devices[i].url;
-  		option.title = devices[i].ua;
+  		option.text = getDeviceName(devices[i].ua)+' ('+devices[i].addr+') : '+devices[i].id;
+  		option.title = devices[i].ua+'\n\nPage url: '+devices[i].url;
   		option.value = devices[i].id;
   		select.add(option);
   	}
@@ -29,18 +30,24 @@
   		return;
   	}
   	for(var p in result.target){
-  		document.getElementById('target-'+p).textContent=result.target[p];
+      if(p=='ua'){
+        var deviceType = document.getElementById('target-device');
+        deviceType.textContent = getDeviceName(result.target.ua);
+        deviceType.title = result.target.ua;
+      }else
+  		  document.getElementById('target-'+p).textContent=result.target[p];
   	}
   });
 
   socket.on('Unmatch', function(){
-  	document.getElementById('target-ua').textContent='';
+  	document.getElementById('target-device').textContent='';
   	document.getElementById('target-url').textContent='';
   	document.getElementById('target-id').textContent='';
   	document.getElementById('target-addr').textContent='';
   });
 
   socket.on('DeviceLog', function(log){
+    log.argv.push('\t ---- From remote web page.');
   	console[log.type].apply(console, log.argv);
   });
 
@@ -55,11 +62,15 @@
   }
 
   function execScriptOnTarget(){
+   //console.log('Error stack:', new Error().stack.split('\n'));
+    //console.log('caller', execScriptOnTarget.caller);
+    //console.log('line:'+new Error().lineNumber);
+
   	var scriptEl = document.getElementById('script');
-	scriptEl.focus();
-	var script = document.getSelection().toString();
-	script = script || scriptEl.value;
-	socket.emit('ExecScript', script);
+  	scriptEl.focus();
+  	var script = document.getSelection().toString();
+  	script = script || scriptEl.value;
+  	socket.emit('ExecScript', script);
   }
 </script>
 
@@ -70,10 +81,10 @@
 	</select><button onclick='connectDevice()'>Connect</button>
 	<div>
 		<h3>Connected to:</h3>
-		<span>User agent: </span><span id='target-ua'></span><br>
+		<span>Device: </span><span id='target-device'></span><br>
+    <span>Device address: </span><span id='target-addr'></span><br>
 		<span>Page url: </span><span id='target-url'></span><br>
-		<span>Device address: </span><span id='target-addr'></span><br>
-		<span>Target id: </span><span id='target-id'></span>
+		<span>Page id: </span><span id='target-id'></span>
 	</div>
 	<textarea id='script'>alert('hello')</textarea>
 	<button onclick='execScriptOnTarget()'>Execute script on target.</button>

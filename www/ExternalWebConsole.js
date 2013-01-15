@@ -26,14 +26,21 @@ Use this file as the first script for the html page where you want debug.
 				if(	!str
 					||(argv[i] instanceof RegExp)
 					||(argv[i] instanceof Error)){
-					transportedArgv.push(argv[i].toString());
+					transportedArgv.push(argv[i]+'');
 				}else{
 					transportedArgv.push(argv[i]);
 				}
 			}catch(e){
-				transportedArgv.push('[Circular]');
+				//alert(e);
+				var obj = {};
+				for(var k in argv[i]){
+					obj[k]=''+argv[i][k];
+				}
+				transportedArgv.push(obj);
+				//alert('ok');
 			}				
 		}
+		//alert('ok');
 		console.debug0('Going to send log',type, argv);
 		var log = {type:type, argv:transportedArgv};
 		if(this.matched){

@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
 
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src='../ExternalWebConsole.js'></script>
 
-<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
+
 <title>Mobile Web App debug sample</title>
 
 <link rel="stylesheet" type="text/css" href="widget.css">
 
 <script type="text/javascript">
-
+//f();
 </script>
 
 </head>
 
 <body>
 	<h2>Mobile Web App debug sample</h2>
+	<button onclick='console.log("hello, log from device")'>console.log()</button>
+	<button onclick='console.error("error message from device")'>console.error()</button>
+	<button onclick='console.warn("waring from device")'>console.warn</button>
 </body>

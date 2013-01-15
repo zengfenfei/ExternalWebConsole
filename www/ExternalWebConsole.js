@@ -3,25 +3,87 @@ Use this file as the first script for the html page where you want debug.
 */
 (function(global){
 
+
 	function ExternalConsole(){
 		var scripts = document.getElementsByTagName('script');
 		var parts = scripts[scripts.length-1].src.split('/');
 		this.host = parts[0]+'//'+parts[2];
+		this.bufferedLogs=[];
+		this.matched = false;
+		var statusBar = this.statusBar = document.createElement('div');
+
+		window.addEventListener('load', function(){
+			document.body.appendChild(document.createElement('hr'));
+			document.body.appendChild(statusBar);
+			window.removeEventListener('load', arguments.callee, false);
+		}, false);
 	}
-	ExternalConsole.prototype.sendOutput = function(type, msg) {
-		// body...
+	ExternalConsole.prototype.sendOutput = function(type, argv) {
+		var transportedArgv = [];	//safe to stringify
+		for(var i=0; i<argv.length; i++){
+			try{
+				var str = JSON.stringify(argv[i]);
+				if(	!str
+					||(argv[i] instanceof RegExp)
+					||(argv[i] instanceof Error)){
+					transportedArgv.push(argv[i].toString());
+				}else{
+					transportedArgv.push(argv[i]);
+				}
+			}catch(e){
+				transportedArgv.push('[Circular]');
+			}				
+		}
+		console.debug0('Going to send log',type, argv);
+		var log = {type:type, argv:transportedArgv};
+		if(this.matched){
+			this.socket.emit('DeviceLog', log);
+		}else{
+			this.bufferedLogs.push(log);
+			//alert('buffer log '+JSON.stringify(transportedArgv));
+		}
 	};
 	ExternalConsole.prototype.connect = function(host) {
 		this.host = host || this.host;
 		this.socket = io.connect(this.host);
-		this.socket.emit('DeviceConnect');
-		console.log('Connected to server '+this.host);
+		this.socket.externalConsole = this;
+		this.socket.on('connect', this.onServerConnected);
+		this.socket.on('Match', this.onConsoleConnected);
+		this.socket.on('Unmatch', this.onConsoleDisconnected);
+		this.socket.on('ExecScript', this.onExecScript);
+	};
+	ExternalConsole.prototype.onServerConnected = function() {
+		this.emit('DeviceConnect');
+		this.externalConsole.updateStatus('Connected to server...');
+		this.externalConsole.updateStatus('Your page id: '+this.socket.sessionid);
+	};
+	ExternalConsole.prototype.onConsoleConnected = function(id) {
+		var ext = this.externalConsole;
+		ext.matched = true;
+		var logs = ext.bufferedLogs;
+		for(var i=0; i<logs.length; i++){
+			this.emit('DeviceLog', logs[i]);
+		}
+		logs.length=0;
+		ext.updateStatus('Matched with external web console: '+id);
+	};
+	ExternalConsole.prototype.onConsoleDisconnected = function() {
+		this.externalConsole.updateStatus('Unmatched with console.');
+		this.externalConsole.matched = false;
+	};
+	ExternalConsole.prototype.onExecScript = function(script) {
+		//alert('Get script:'+script);
+		eval(script);
+	};
+	ExternalConsole.prototype.updateStatus = function(info) {
+		this.statusBar.innerHTML+=info+'<br>';
 	};
 
 	var externalConsole = new ExternalConsole();
 	externalConsole.connect();
 
 	function handleUncaughtException(msg, url, line){
+		//alert(msg + '\t <-- ' + url + ':' + line);
 		console.error(msg + '\t <-- ' + url + ':' + line);
 		return true;
 	}
@@ -37,18 +99,10 @@ Use this file as the first script for the html page where you want debug.
 	function createMockMethod(target,  fn){
 		target[fn+'0'] = target[fn];
 		target[fn] = function(){
-			var args=[];
-			for(var i=0; i<arguments.length; i++){
-				try{
-					args.push(JSON.stringify(arguments[i]));
-				}catch(e){
-					args.push('[Circular]');
-				}				
-			}
-			target[fn+'0'].apply(target, arguments);
-			externalConsole.sendOutput(fn, JSON.stringify(args));
+			this[fn+'0'].apply(this, arguments);
+			externalConsole.sendOutput(fn, arguments);
 		};
 	}
 
-	console.log('ExternalWebConsole---');
+	console.log0('ExternalWebConsole---');
 })(window);

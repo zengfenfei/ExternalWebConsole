@@ -85,7 +85,6 @@ function OnMatch(id){
 		this.deviceSocket.emit('Unmatch');
 		delete this.deviceSocket.consoleSocket;
 		delete this.deviceSocket;
-		
 	}
 	for(var i=0; i<deviceSockets.length; i++){
 		if(deviceSockets[i].id == id){
@@ -119,7 +118,7 @@ function OnMatch(id){
 function OnDeviceLog(log){
 	if(this.consoleSocket){
 		this.consoleSocket.emit('DeviceLog', log);
-		console.log('Send device log to console...', log);
+		//console.log('Send device log to console...', log);
 	}else{
 		console.error('Device send log when no console connected.');
 	}

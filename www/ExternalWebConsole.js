@@ -45,6 +45,9 @@ Use this file as the first script for the html page where you want debug.
 			//alert(callStack.split('\n').length);
 			var codeInfo = callStack.split('\n    at ')[3];
 			transportedArgv.push('\t <-- ' + codeInfo);
+		}else{
+			var caller = arguments.callee.caller.caller;
+			transportedArgv.push('\t <-- ' + (caller && caller.name));
 		}
 		
 		//console.debug0('Going to send log',type, argv);
@@ -60,15 +63,20 @@ Use this file as the first script for the html page where you want debug.
 		this.host = host || this.host;
 		this.socket = io.connect(this.host);
 		this.socket.externalConsole = this;
-		this.socket.on('connect', this.onServerConnected);
+		this.socket.on('connect', this.onServerConnected.bind(this));
+		this.socket.on('disconnect', this.onServerDisconnected);
 		this.socket.on('Match', this.onConsoleConnected);
 		this.socket.on('Unmatch', this.onConsoleDisconnected);
 		this.socket.on('ExecScript', this.onExecScript);
 	};
 	ExternalConsole.prototype.onServerConnected = function() {
-		this.emit('DeviceConnect');
-		this.externalConsole.updateStatus('Connected to server...');
-		this.externalConsole.updateStatus('Your page id: '+this.socket.sessionid);
+		//alert('onServerConnected'+this.host+this.matched);
+		this.socket.emit('DeviceConnect');
+		this.updateStatus('Connected to server...');
+		this.updateStatus('Your page id: '+this.socket.sessionid);
+	};
+	ExternalConsole.prototype.onServerDisconnected = function() {
+		this.externalConsole.updateStatus('Disconnected from server...');
 	};
 	ExternalConsole.prototype.onConsoleConnected = function(id) {
 		var ext = this.externalConsole;
@@ -112,7 +120,7 @@ Use this file as the first script for the html page where you want debug.
 	function createMockMethod(target,  fn){
 		target[fn+'0'] = target[fn];
 		target[fn] = function(){
-			this[fn+'0'].apply(this, arguments);
+			//this[fn+'0'].apply(this, arguments);
 			externalConsole.sendOutput(fn, arguments);
 		};
 	}

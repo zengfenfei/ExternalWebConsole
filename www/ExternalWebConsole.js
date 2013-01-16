@@ -73,7 +73,7 @@ Use this file as the first script for the html page where you want debug.
 		//alert('onServerConnected'+this.host+this.matched);
 		this.socket.emit('DeviceConnect');
 		this.updateStatus('Connected to server...');
-		this.updateStatus('Your page id: '+this.socket.sessionid);
+		this.updateStatus('Your page id: '+this.socket.socket.sessionid);
 	};
 	ExternalConsole.prototype.onServerDisconnected = function() {
 		this.externalConsole.updateStatus('Disconnected from server...');

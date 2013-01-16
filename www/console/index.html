@@ -47,7 +47,7 @@
   });
 
   socket.on('DeviceLog', function(log){
-    log.argv.push('\t ---- From remote web page.');
+    //log.argv.push('\t ---- From remote web page.');
   	console[log.type].apply(console, log.argv);
   });
 

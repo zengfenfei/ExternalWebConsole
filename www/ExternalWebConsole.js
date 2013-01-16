@@ -40,8 +40,14 @@ Use this file as the first script for the html page where you want debug.
 				//alert('ok');
 			}				
 		}
-		//alert('ok');
-		console.debug0('Going to send log',type, argv);
+		var callStack = new Error().stack;
+		if(callStack){
+			//alert(callStack.split('\n').length);
+			var codeInfo = callStack.split('\n    at ')[3];
+			transportedArgv.push('\t <-- ' + codeInfo);
+		}
+		
+		//console.debug0('Going to send log',type, argv);
 		var log = {type:type, argv:transportedArgv};
 		if(this.matched){
 			this.socket.emit('DeviceLog', log);

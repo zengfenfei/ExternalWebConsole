@@ -9,7 +9,10 @@ io.set('log level', 2);
 
 server.listen(8081);
 
-app.use(express.static(path.join(__dirname, 'www')));
+process.chdir(__dirname);
+app.use(express.static('../../webos/fs'));
+app.use(express.static('www'));
+console.log('Current working directory:'+process.cwd());
 
 io.sockets.on('connection', function (socket) {
 	global.socket=socket;

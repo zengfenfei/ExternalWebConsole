@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no" />
+
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src='../ExternalWebConsole.js'></script>
+
+
+<title>Native CloudAPI test</title>
+
+<script type="text/javascript">
+function dialNum(){
+	var par = {
+		type:'NATIVEAPP',
+		data:{
+			action: 'android.intent.action.DIAL',
+			uri: 'tel:123'
+		}
+	};
+	alert('launchApp:'+JSON.stringify(par));
+	CloudAPI.ApplicationLauncher.launchApplication(par);
+
+}
+function launchApp () {
+
+	CloudAPI.ApplicationLauncher.launchApplication({
+		type: 'NATIVEAPP',
+		package: 'com.aliyun.wireless.vos.appstore'
+	});
+}
+</script>
+
+</head>
+
+<body>
+	<h2>Native CloudAPI test</h2>
+	<button onclick='console.log("device log....");'>console.log()</button>
+	<button onclick='launchApp();'>launchApplication</button>
+	<button onclick='dialNum()'>Dial number</button>
+</body>
